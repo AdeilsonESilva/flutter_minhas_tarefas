@@ -60,4 +60,10 @@ class AnotacaoHelper {
     return await dataBase.update(tableName, anotation.toMap(),
         where: 'id = ?', whereArgs: [anotation.id]);
   }
+
+  Future<int> removeAnotation(int id) async {
+    var dataBase = await db;
+
+    return await dataBase.delete(tableName, where: 'id = ?', whereArgs: [id]);
+  }
 }

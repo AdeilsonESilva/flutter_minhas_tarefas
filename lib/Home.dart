@@ -69,6 +69,10 @@ class _HomeState extends State<Home> {
     );
   }
 
+  Future<int> _incluirAnotacao(Anotation anotation) async {
+    return await _db.saveAnotation(anotation);
+  }
+
   void _salvarAtualizarAnotacao({Anotation anotacao}) async {
     var titulo = _tituloController.text;
     var descricao = _descricaoController.text;
@@ -80,7 +84,7 @@ class _HomeState extends State<Home> {
     int id;
 
     if (anotacao == null) {
-      id = await _db.saveAnotation(anotation);
+      id = await _incluirAnotacao(anotation);
     } else {
       anotation.id = anotacao.id;
       id = await _db.updateAnotation(anotation);
@@ -113,6 +117,14 @@ class _HomeState extends State<Home> {
     var dataFormatada = formatador.format(dataConvertida);
 
     return dataFormatada;
+  }
+
+  void _removerAnotacao(int id) async {
+    int quantidade = await _db.removeAnotation(id);
+
+    _recuperarAnotacoes();
+
+    print(quantidade);
   }
 
   @override
@@ -155,7 +167,22 @@ class _HomeState extends State<Home> {
                     ),
                   ),
                   GestureDetector(
-                    onTap: () {},
+                    onTap: () {
+                      final itemExcluido = _anotacoes[index];
+                      final snackBar = SnackBar(
+                        content: Text('Item excluído!'),
+                        action: SnackBarAction(
+                          label: 'Desfazer',
+                          onPressed: () {
+                            _incluirAnotacao(itemExcluido);
+                            _recuperarAnotacoes();
+                          },
+                        ),
+                      );
+
+                      _removerAnotacao(_anotacoes[index].id);
+                      Scaffold.of(context).showSnackBar(snackBar);
+                    },
                     child: Icon(
                       Icons.remove_circle,
                       color: Colors.red,
