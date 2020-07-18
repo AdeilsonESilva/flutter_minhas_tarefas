@@ -10,17 +10,16 @@ class Anotation {
     this.date,
   );
 
-  Map<String, dynamic> toMap() {
-    Map<String, dynamic> map = {
-      'title': title,
-      'description': description,
-      'date': date,
-    };
+  Map<String, dynamic> toMap() => {
+        'title': title,
+        'description': description,
+        'date': date,
+      };
 
-    if (id != null) {
-      map['id'] = id;
-    }
-
-    return map;
+  Anotation.fromMap(Map<String, dynamic> map) {
+    this.id = map['id'];
+    this.title = map['title'];
+    this.description = map['description'];
+    this.date = map['date'];
   }
 }

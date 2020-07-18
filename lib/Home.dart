@@ -11,6 +11,7 @@ class _HomeState extends State<Home> {
   var _tituloController = TextEditingController();
   var _descricaoController = TextEditingController();
   var _db = AnotacaoHelper();
+  var _anotacoes = List<Anotation>();
 
   void _exibirTelaCadastro() {
     showDialog(
@@ -63,12 +64,32 @@ class _HomeState extends State<Home> {
     // print('data: ${DateTime.now()}');
     Anotation anotation =
         Anotation(titulo, descricao, DateTime.now().toString());
-    int id = await _db.saveAnotation(anotation);
+    var id = await _db.saveAnotation(anotation);
 
     _tituloController.clear();
     _descricaoController.clear();
 
+    _recuperarAnotacoes();
+
     print(id);
+  }
+
+  void _recuperarAnotacoes() async {
+    var anotacoesRecuperadas = await _db.getAnotations();
+
+    setState(() {
+      _anotacoes = anotacoesRecuperadas
+          .map((anotacao) => Anotation.fromMap(anotacao))
+          .toList();
+    });
+
+    print(anotacoesRecuperadas);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _recuperarAnotacoes();
   }
 
   @override
@@ -78,7 +99,18 @@ class _HomeState extends State<Home> {
         title: Text('Minhas Anotações'),
         backgroundColor: Colors.lightGreen,
       ),
-      body: Container(),
+      body: Container(
+        child: ListView.builder(
+          itemCount: _anotacoes.length,
+          itemBuilder: (context, index) => Card(
+            child: ListTile(
+              title: Text(_anotacoes[index].title),
+              subtitle: Text(
+                  '${_anotacoes[index].date} - ${_anotacoes[index].description}'),
+            ),
+          ),
+        ),
+      ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.green,
         foregroundColor: Colors.white,

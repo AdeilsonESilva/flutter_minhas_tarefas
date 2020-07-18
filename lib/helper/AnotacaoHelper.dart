@@ -47,4 +47,10 @@ class AnotacaoHelper {
 
     return id;
   }
+
+  Future<List<Map<String, dynamic>>> getAnotations() async {
+    var dataBase = await db;
+
+    return await dataBase.query(tableName, orderBy: 'date');
+  }
 }
