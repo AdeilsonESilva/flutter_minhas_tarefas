@@ -136,6 +136,11 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
+    final paddinBottom =
+        MediaQuery.of(context).orientation == Orientation.landscape
+            ? MediaQuery.of(context).size.height * .2
+            : MediaQuery.of(context).size.height * .12;
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Minhas Anotações'),
@@ -143,7 +148,7 @@ class _HomeState extends State<Home> {
       ),
       body: Container(
         child: ListView.builder(
-          padding: EdgeInsets.only(bottom: 80),
+          padding: EdgeInsets.only(bottom: paddinBottom),
           itemCount: _anotacoes.length,
           itemBuilder: (context, index) => Card(
             child: ListTile(
