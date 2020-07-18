@@ -15,11 +15,21 @@ class _HomeState extends State<Home> {
   var _db = AnotacaoHelper();
   var _anotacoes = List<Anotation>();
 
-  void _exibirTelaCadastro() {
+  void _exibirTelaCadastro({Anotation anotacao}) {
+    var textoSalvarAtualizar = 'Salvar';
+    _tituloController.clear();
+    _tituloController.clear();
+
+    if (anotacao != null) {
+      _tituloController.text = anotacao.title;
+      _descricaoController.text = anotacao.description;
+      textoSalvarAtualizar = 'Atualizar';
+    }
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Adicionar anotação'),
+        title: Text('$textoSalvarAtualizar anotação'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
@@ -48,25 +58,33 @@ class _HomeState extends State<Home> {
           ),
           FlatButton(
             onPressed: () {
-              _salvarAnotacao();
+              _salvarAtualizarAnotacao(anotacao: anotacao);
 
               Navigator.pop(context);
             },
-            child: Text('Salvar'),
+            child: Text(textoSalvarAtualizar),
           ),
         ],
       ),
     );
   }
 
-  void _salvarAnotacao() async {
+  void _salvarAtualizarAnotacao({Anotation anotacao}) async {
     var titulo = _tituloController.text;
     var descricao = _descricaoController.text;
 
     // print('data: ${DateTime.now()}');
     Anotation anotation =
         Anotation(titulo, descricao, DateTime.now().toString());
-    var id = await _db.saveAnotation(anotation);
+
+    int id;
+
+    if (anotacao == null) {
+      id = await _db.saveAnotation(anotation);
+    } else {
+      anotation.id = anotacao.id;
+      id = await _db.updateAnotation(anotation);
+    }
 
     _tituloController.clear();
     _descricaoController.clear();
@@ -113,12 +131,38 @@ class _HomeState extends State<Home> {
       ),
       body: Container(
         child: ListView.builder(
+          padding: EdgeInsets.only(bottom: 80),
           itemCount: _anotacoes.length,
           itemBuilder: (context, index) => Card(
             child: ListTile(
               title: Text(_anotacoes[index].title),
               subtitle: Text(
-                  '${_formatarData(_anotacoes[index].date)} - ${_anotacoes[index].description}'),
+                '${_formatarData(_anotacoes[index].date)} - ${_anotacoes[index].description}',
+              ),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  GestureDetector(
+                    onTap: () {
+                      _exibirTelaCadastro(anotacao: _anotacoes[index]);
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 16),
+                      child: Icon(
+                        Icons.edit,
+                        color: Colors.green,
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {},
+                    child: Icon(
+                      Icons.remove_circle,
+                      color: Colors.red,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
